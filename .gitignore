@@ -110,3 +110,6 @@ flowers/valid
 
 # any pytorch checkpoints
 **/*.pth
+
+# MacOS stuff
+**/.DS_Store
