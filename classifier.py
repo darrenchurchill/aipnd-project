@@ -75,6 +75,9 @@ class Classifier(object):
         model: the PyTorch model being used.
         model.current_epoch (int): the current training epoch.
         model_architecture (str): the pretrained model's architecture.
+        summary_info list[(str, any)]: list of summary information describing
+            this classifier, including the model architecture, hyperparameters,
+            and the current epoch.
     """
     # Pretrained models:
     # Only Alexnet, VGG, and DenseNet architectures seem compatible with the
@@ -277,6 +280,21 @@ class Classifier(object):
 
         if 'optimizer_state_dict' in kwargs:  # load the state from checkpoint
             self.optimizer.load_state_dict(kwargs['optimizer_state_dict'])
+
+    @property
+    def summary_info(self):
+        """Get a summary of this classifier as a list of tuples.
+
+        Returns:
+            list[(str, any)]: the summary information.
+        """
+        return [('model_architecture', self.model_architecture),
+                ('input_size', self.input_size),
+                ('output_size', self.output_size),
+                ('hidden_layers', self.hidden_layers),
+                ('learn_rate', self.learn_rate),
+                ('drop_p', self.drop_p),
+                ('current_epoch', self.model.current_epoch)]
 
     def save_checkpoint(self, checkpoint_path='checkpoint.pth'):
         """Save the current model state as a PyTorch checkpoint so it can
