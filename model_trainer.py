@@ -3,6 +3,9 @@
 training, validating and testing datasets, the Trainer trains the Classifier's
 model.
 """
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import IO
 
 import torch.utils.data
 from torchvision import datasets, transforms
@@ -116,7 +119,7 @@ class ModelTrainer(object):
             )
 
     def train_classifier(self, validate=True, num_epochs=3, print_every=40,
-                         device='cuda', output_file=None):
+                         device='cuda', output_file=None, print_status=False):
         """Train the classifier and validate every 'print_every' steps through
         each epoch.
 
@@ -126,7 +129,8 @@ class ModelTrainer(object):
             num_epochs (int): See Classifier.train_classifier()
             print_every (int): See Classifier.train_classifier()
             device (str): See Classifier.train_classifier()
-            output_file (io.TextIOWrapper): See Classifier.train_classifier()
+            output_file (IO): See Classifier.train_classifier()
+            print_status (bool): See Classifier.train_classifier()
 
         Returns:
             None
@@ -137,30 +141,29 @@ class ModelTrainer(object):
                                          num_epochs,
                                          print_every,
                                          device,
-                                         output_file)
+                                         output_file,
+                                         print_status)
 
-    def test_accuracy(self, device='cuda', output_file=None):
+    def test_accuracy(self, device='cuda', print_status=False):
         """Test and calculate the classifier's accuracy using the testing set.
 
         Args:
             device (str): see Classifier.validate()
-            output_file (io.TextIOWrapper): see Classifier.validate()
+            print_status (bool): see Classifier.validate()
 
         Returns:
             (float): the model's accuracy in classifying images in the testing
                 set.
         """
-        if output_file is not None:
-            print('Testing model accuracy: ', end='',
-                  file=output_file, flush=True)
+        if print_status:
+            print('Testing model accuracy: ', end='', flush=True)
 
-        accuracy = self.classifier.validate(self._dataloaders['test'],
-                                            device,
-                                            output_file)[1]
+        accuracy = self.classifier.validate(self._dataloaders['test'], device,
+                                            print_status)[1]
 
         # Clear the final 'Processing batch' message from screen
-        if output_file is not None:
+        if print_status:
             print('\r                                                       \r',
-                  end='', file=output_file, flush=True)
+                  end='', flush=True)
 
         return accuracy

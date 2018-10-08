@@ -18,6 +18,7 @@ Options:
 """
 
 import argparse
+from contextlib import contextmanager
 import os
 import sys
 
@@ -26,6 +27,22 @@ import torch
 from classifier import Classifier
 from model_trainer import ModelTrainer
 from workspace_utils import active_session
+
+
+@contextmanager
+def dont_open():
+    """Convenience context manager to make conditionally opening a file
+    simpler.
+    """
+    yield None
+
+
+@contextmanager
+def no_context():
+    """Convenience context manager to make conditionally using active_session
+    simpler.
+    """
+    yield
 
 
 def main():
@@ -68,8 +85,15 @@ def main():
     parser.add_argument('--no_save_checkpoint', action='store_true',
                         help=("don't save a checkpoint after training to " +
                               "save disk space"))
+    parser.add_argument('--write_log_file', action='store_true',
+                        help=('write training loss and accuracy data to a ' +
+                              'log file at {save_dir}/{model_arch}.out'))
     args = parser.parse_args()
     # print(args)
+
+    keep_active = not args.no_active_session  # whether we need active_session
+    validate = not args.no_validate  # whether to use validation set
+    save_checkpoint = not args.no_save_checkpoint
 
     data_dir = args.data_directory.rstrip('/')
     try:
@@ -77,12 +101,11 @@ def main():
             d for d in os.listdir(data_dir + '/test') if d.isnumeric()
         ])
     except FileNotFoundError:
-        print(f'ERROR: {data_dir} not found.')
+        print(f'ERROR: {data_dir} not found.', file=sys.stderr)
         sys.exit(-1)
     except NotADirectoryError:
-        print(f'ERROR: {data_dir} is not a directory. ',
-              'Saving checkpoint to current dir instead.',
-              file=sys.stderr)
+        print(f'ERROR: {data_dir} is not a directory.', file=sys.stderr)
+        sys.exit(-1)
     # print(num_categories)
 
     if args.gpu:
@@ -109,42 +132,41 @@ def main():
             learn_rate=args.learning_rate
         )
 
-    if args.no_active_session:
-        trainer.train_classifier(validate=not args.no_validate,
-                                 num_epochs=args.epochs,
-                                 device=device,
-                                 output_file=sys.stdout)
-    else:
-        with active_session():  # Keep session active on the remote workspace
-            trainer.train_classifier(validate=not args.no_validate,
+    save_dir = args.save_dir.rstrip('/')
+    try:
+        os.listdir(save_dir)
+    except FileNotFoundError:
+        os.mkdir(save_dir)
+    except NotADirectoryError:
+        print(f'WARNING: {save_dir} is not a directory. ' +
+              'Saving checkpoint and writing any training logs to current ' +
+              'directory instead.',
+              file=sys.stderr)
+        save_dir = '.'
+
+    with open(f'{save_dir}/{args.arch}.txt', 'w') \
+            if args.write_log_file else dont_open() as log_file:
+        with active_session() if keep_active else no_context():
+            trainer.train_classifier(validate=validate,
                                      num_epochs=args.epochs,
                                      device=device,
-                                     output_file=sys.stdout)
+                                     output_file=log_file,
+                                     print_status=True)
 
-    if not args.no_save_checkpoint:
-        save_dir = args.save_dir.rstrip('/')
-        try:
-            os.listdir(save_dir)
-        except FileNotFoundError:
-            os.mkdir(save_dir)
-        except NotADirectoryError:
-            print(f'WARNING: {save_dir} is not a directory. ',
-                  'Saving checkpoint to current dir instead.',
-                  file=sys.stderr)
-            save_dir = '.'
-
+    if save_checkpoint:
         trainer.classifier.save_checkpoint(save_dir + '/checkpoint.pth')
 
     if args.test_model:
-        if args.no_active_session:
+        with active_session() if keep_active else no_context():
             accuracy = trainer.test_accuracy(device=device,
-                                             output_file=sys.stdout)
-        else:
-            with active_session():
-                accuracy = trainer.test_accuracy(device=device,
-                                                 output_file=sys.stdout)
+                                             print_status=True)
 
-        print(f'Test Accuracy: {accuracy*100:.4f}%')
+        msg = f'Test Accuracy: {accuracy*100:.4f}%'
+        print(msg)
+
+        if args.write_log_file:
+            with open(f'{save_dir}/{args.arch}.txt', 'w') as log_file:
+                print(msg, file=log_file)
 
 
 if __name__ == '__main__':

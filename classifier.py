@@ -2,6 +2,9 @@
 """Classifier class definition """
 
 import sys
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import IO
 
 import numpy as np
 
@@ -304,7 +307,7 @@ class Classifier(object):
         }
         torch.save(checkpoint, checkpoint_path)
 
-    def validate(self, dataloader, device='cuda', output_file=None):
+    def validate(self, dataloader, device='cuda', print_status=False):
         """Validate the model using the dataloader and calculate the loss and
         accuracy.
 
@@ -313,8 +316,9 @@ class Classifier(object):
                 images to use for validation.
             device (str): the device to use to perform the PyTorch operations.
                 Should be either 'cuda' or 'cpu'.
-            output_file (io.TextIOWrapper): File-like object to log status info
-                to. No info will be printed if output_file is none.
+            print_status (bool): whether to print additional status messages
+                to stdout. These messages can help monitor progress in the
+                terminal while training.
 
         Returns:
             (float, float): the validation loss, the validation accuracy.
@@ -328,16 +332,14 @@ class Classifier(object):
         # Put model in eval mode to turn off node dropouts
         self.model.eval()
 
-        if output_file is not None:
-            print('Processing batch: ',
-                  end='', file=output_file, flush=True)
+        if print_status:
+            print('Processing batch: ', end='', flush=True)
 
         with torch.no_grad():
             num_batches = len(dataloader)
             for step, (images, labels) in enumerate(dataloader, 1):
-                if output_file is not None:
-                    print(f'{step:3}/{num_batches:3}',
-                          end='', file=output_file, flush=True)
+                if print_status:
+                    print(f'{step:3}/{num_batches:3}', end='', flush=True)
 
                 images, labels = images.to(device), labels.to(device)
 
@@ -348,9 +350,9 @@ class Classifier(object):
                 equality = (labels.data == ps.max(dim=1)[1])
                 accuracy += equality.type(torch.FloatTensor).mean()
 
-                if output_file is not None:
+                if print_status:
                     # move cursor back 7 spaces for next step msg
-                    print('\b'*7, end='', file=output_file)
+                    print('\b' * 7, end='')
 
         # Put model back into training mode
         self.model.train()
@@ -358,7 +360,8 @@ class Classifier(object):
         return test_loss / num_images, accuracy / num_images
 
     def train_classifier(self, trainloader, validloader=None, num_epochs=3,
-                         print_every=40, device='cuda', output_file=None):
+                         print_every=40, device='cuda', output_file=None,
+                         print_status=False):
         """Train the classifier using the provided dataloaders. Validation set
         will be used every 'print_every' batches during training if one is
         given.
@@ -373,8 +376,15 @@ class Classifier(object):
             print_every (int): How often to print the training status.
             device (str): the device to use to perform the PyTorch operations.
                 Should be either 'cuda' or 'cpu'.
-            output_file (io.TextIOWrapper): File-like object to log status info
-                to. No info will be printed if output_file is none.
+            output_file (IO): File-like object to log status info
+                to. No info will be written if output_file is none.
+            print_status (bool): whether to print additional status messages
+                to stdout. These messages can help monitor progress in the
+                terminal while training. These status messages contain the same
+                Training Loss, Validation Loss and Validation Accuracy
+                information as what would be written to the output file, but
+                some additional status messages are printed using this option to
+                get more frequent updates.
 
         Returns:
             None
@@ -388,10 +398,11 @@ class Classifier(object):
             num_batches = len(trainloader)
 
             for step, (inputs, labels) in enumerate(trainloader, 1):
-                if output_file is not None:
+                # if output_file is not None:
+                if print_status:
                     print(f'\rEpoch: {e:{len(str(end_epoch))}}/{end_epoch} |',
                           f'Processing batch: {step:3}/{num_batches:3}',
-                          end='', file=output_file, flush=True)
+                          end='', flush=True)
                 inputs, labels = inputs.to(device), labels.to(device)
 
                 self.optimizer.zero_grad()
@@ -407,33 +418,36 @@ class Classifier(object):
 
                 if step % print_every == 0:
                     msg = [
-                        f'\rEpoch: {e:{len(str(end_epoch))}}/{end_epoch}   ',
+                        f'Epoch: {e:{len(str(end_epoch))}}/{end_epoch}   ',
                         f'Training Loss: {running_loss/print_every:.3f}   '
                     ]
                     if validloader is not None:
-                        if output_file is not None:
-                            print(' | Validating model: ', end='',
-                                  file=output_file, flush=True)
+                        # if output_file is not None:
+                        if print_status:
+                            print(' | Validating model: ', end='', flush=True)
 
                         validation_loss, validation_accuracy = \
-                            self.validate(
-                                validloader,
-                                device=device,
-                                output_file=output_file
-                            )
+                            self.validate(validloader, device=device,
+                                          print_status=print_status)
                         msg.extend((
                             f'Validation Loss: {validation_loss:.3f}   ',
                             f'Validation Accuracy: {validation_accuracy:.3f}'
                         ))
 
+                    if print_status:
+                        print('\r', end='')
+                        print(*msg)
                     if output_file is not None:
-                        print(*msg, file=output_file)
+                        # write to file and flush so it can be seen before
+                        # the file is closed. Allows tail -f monitoring
+                        print(*msg, file=output_file, flush=True)
+
                     running_loss = 0
 
         # Clear the final 'Processing batch' message from screen
-        if output_file is not None:
-            print('\r                                                 ',
-                  file=output_file, flush=True)
+        if print_status:
+            print('\r                                                         ',
+                  flush=True)
         self.model.current_epoch = start_epoch + num_epochs
 
     def process_image(self, image):
