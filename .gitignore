@@ -107,3 +107,6 @@ ENV/
 flowers/test
 flowers/train
 flowers/valid
+
+# any pytorch checkpoints
+**/*.pth
