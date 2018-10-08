@@ -76,7 +76,15 @@ def load_json(file_path):
         sys.exit(-1)
 
 
-def main():
+def main(*args):
+    """Predict the top K classes of an image.
+
+    Args:
+        *args: args to be parsed by the ArgumentParser
+
+    Returns:
+        None
+    """
     # Instantiating with formatter_class argument will make default values print
     # in the help message.
     parser = argparse.ArgumentParser(
@@ -97,7 +105,7 @@ def main():
     parser.add_argument('--gpu', action='store_true',
                         help=('if available, use gpu to process the image ' +
                               'instead of the cpu'))
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     # print(args)
 
     if os.path.isdir(args.image_path):
@@ -147,4 +155,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])

@@ -4,11 +4,11 @@ train.py. Doesn't save checkpoint files to conserve disk space.
 """
 
 import argparse
-import subprocess
 import sys
 import yaml
 
 from classifier import Classifier
+import train
 
 
 def load_hyperparameters(file_path):
@@ -56,7 +56,15 @@ def load_hyperparameters(file_path):
     return params
 
 
-def main():
+def main(*args):
+    """Do batch training using train.py
+
+    Args:
+        *args: args to be parsed by the ArgumentParser
+
+    Returns:
+        None
+    """
     # Instantiating with formatter_class argument will make default values print
     # in the help message.
     parser = argparse.ArgumentParser(
@@ -75,7 +83,7 @@ def main():
                               "(use the cpu)"))
     parser.add_argument('--save_dir_root', type=str, default='.',
                         help='the directory root to save output files into.')
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     architectures = [k.lower() for k in Classifier.IMAGENET_MODELS.keys()]
 
@@ -94,22 +102,21 @@ def main():
         try:
             print(f'Training {arch} and writing output to ' +
                   f'{args.save_dir_root}/{arch}.txt')
-            prog = [f'./train.py',
-                    args.data_directory,
-                    *no_act_sess,
-                    *gpu,
-                    '--arch', f'{arch}',
-                    '--learning_rate', f'{learning_rate}',
-                    '--epochs', f'{epochs}',
-                    '--hidden_units', *hidden_units,
-                    '--test_model',
-                    '--save_dir', args.save_dir_root,
-                    '--no_save_checkpoint',
-                    '--write_log_file']
-            subprocess.run(prog)
+            prog_args = [args.data_directory,
+                         *no_act_sess,
+                         *gpu,
+                         '--arch', f'{arch}',
+                         '--learning_rate', f'{learning_rate}',
+                         '--epochs', f'{epochs}',
+                         '--hidden_units', *hidden_units,
+                         '--test_model',
+                         '--save_dir', args.save_dir_root,
+                         '--no_save_checkpoint',
+                         '--write_log_file']
+            train.main(*prog_args)
         except KeyboardInterrupt:
             continue
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])

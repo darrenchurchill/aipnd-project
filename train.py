@@ -45,7 +45,15 @@ def no_context():
     yield
 
 
-def main():
+def main(*args):
+    """Train the model.
+
+    Args:
+        *args: args to be parsed by the ArgumentParser
+
+    Returns:
+        None
+    """
     # Instantiating with formatter_class argument will make default values print
     # in the help message.
     parser = argparse.ArgumentParser(
@@ -88,7 +96,7 @@ def main():
     parser.add_argument('--write_log_file', action='store_true',
                         help=('write training loss and accuracy data to a ' +
                               'log file at {save_dir}/{model_arch}.out'))
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     # print(args)
 
     keep_active = not args.no_active_session  # whether we need active_session
@@ -170,4 +178,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])
