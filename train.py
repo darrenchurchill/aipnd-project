@@ -165,7 +165,7 @@ def main():
         print(msg)
 
         if args.write_log_file:
-            with open(f'{save_dir}/{args.arch}.txt', 'w') as log_file:
+            with open(f'{save_dir}/{args.arch}.txt', 'a') as log_file:
                 print(msg, file=log_file)
 
 
