@@ -102,3 +102,8 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# dataset directories for this project
+flowers/test
+flowers/train
+flowers/valid
