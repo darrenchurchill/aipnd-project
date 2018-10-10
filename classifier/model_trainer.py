@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 import torch.utils.data
 from torchvision import datasets, transforms
 
-from classifier import Classifier
+from classifier.classifier import Classifier
 
 
 class ModelTrainer(object):

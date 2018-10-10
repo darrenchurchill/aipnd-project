@@ -3,7 +3,7 @@
 Used to get valid architecture names to do batch training from shell script.
 """
 
-from classifier import Classifier
+from context import Classifier
 
 
 def main():

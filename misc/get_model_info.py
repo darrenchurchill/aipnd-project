@@ -3,7 +3,7 @@
 
 import argparse
 
-from classifier import Classifier
+from context import Classifier
 
 
 def main():

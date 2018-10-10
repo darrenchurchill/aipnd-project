@@ -24,8 +24,8 @@ import sys
 
 import torch
 
-from classifier import Classifier
-from model_trainer import ModelTrainer
+from classifier.classifier import Classifier
+from classifier.model_trainer import ModelTrainer
 from workspace_utils import active_session
 
 

@@ -2,8 +2,6 @@
 # Script to perform batch training of different model architectures using
 # train.py. Doesn't save checkpoint files to conserve disk space.
 
-source misc/bash-yaml/yaml.sh
-
 USAGE="\
 usage: batch_training.sh [-h] [--no_active_session] [--no_gpu]
                          [--save_dir_root SAVE_DIR_ROOT] [data_directory]"
@@ -45,6 +43,14 @@ function print_help() {
   echo
   echo "$HELP"
 }
+
+if [ ! -d "misc" ]
+then
+  echo >&2 "Run this script from the root directory of this repo."
+  exit -1
+fi
+
+source misc/bash-yaml/yaml.sh
 
 # Default values
 LEARN_RATE=0.001
@@ -109,7 +115,7 @@ fi
 #echo
 #exit 0
 
-architectures=$(python3 ./get_model_names.py)
+architectures=$(python3 misc/get_model_names.py)
 
 hyperparams="${save_root}/hyperparameters.yml"
 if [ -f "$hyperparams" ]

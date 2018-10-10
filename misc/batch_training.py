@@ -7,8 +7,7 @@ import argparse
 import sys
 import yaml
 
-from classifier import Classifier
-import train
+from context import Classifier, train
 
 
 def load_hyperparameters(file_path):

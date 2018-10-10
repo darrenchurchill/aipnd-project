@@ -18,7 +18,7 @@ import sys
 
 import torch
 
-from classifier import Classifier
+from classifier.classifier import Classifier
 
 
 def get_random_image_from_dir(directory):
