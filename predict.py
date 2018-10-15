@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 """Predict a flower name along with the probability of that name.
-Basic Usage: python predict.py /path/to/image checkpoint
+
+Basic Usage:
+python predict.py /path/to/image checkpoint
+
 Options:
 - Return top K most likely classes:
   python predict.py input checkpoint --top_k 3
@@ -106,7 +109,6 @@ def main(*args):
                         help=('if available, use gpu to process the image ' +
                               'instead of the cpu'))
     args = parser.parse_args(args)
-    # print(args)
 
     if os.path.isdir(args.image_path):
         print(f'{args.image_path} is a directory.',
@@ -140,14 +142,11 @@ def main(*args):
                                         topk=args.top_k,
                                         device=device)
 
-    if cat_to_name:
+    if cat_to_name is not None:
         classes = [cat_to_name[c] for c in classes]
         class_len = len(max(cat_to_name.values(), key=len))
     else:
         class_len = 10  # padding needed to space column 1 title 'Class' below
-
-    # print(probs)
-    # print(classes)
 
     print(f'{"Class":{class_len}}{"Probability"}')
     for prob, class_ in zip(probs, classes):

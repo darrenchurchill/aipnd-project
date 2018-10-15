@@ -97,16 +97,6 @@ class Classifier(object):
         'DENSENET169': models.densenet169,
         'DENSENET201': models.densenet201,
     }
-    # not_working {
-    #     'RESNET18': models.resnet18,
-    #     'RESNET34': models.resnet34,
-    #     'RESNET50': models.resnet50,
-    #     'RESNET101': models.resnet101,
-    #     'RESNET152': models.resnet152,
-    #     'SQUEEZENET1_0': models.squeezenet1_0,
-    #     'SQUEEZENET1_1': models.squeezenet1_1,
-    #     'INCEPTION_V3': models.inception_v3,
-    # }
 
     def __init__(self, output_size=None, hidden_layers=None, learn_rate=0.001,
                  drop_p=0.5, checkpoint=None, model_architecture=None,
@@ -228,34 +218,16 @@ class Classifier(object):
 
         else:  # No checkpoint, will be creating a new classifier for the model
             # The number of features coming from the feature detector CNN
-            # print('Classifier.model.classifier:')
             if 'ALEXNET' in self.model_architecture:
-                # print(self.model.classifier)
                 self.input_size = self.model.classifier[1].in_features
             elif 'VGG' in self.model_architecture:
-                # print(self.model.classifier)
                 self.input_size = self.model.classifier[0].in_features
             elif 'DENSENET' in self.model_architecture:
-                # print(self.model.classifier)
                 self.input_size = self.model.classifier.in_features
-            # The structure of the 3 model architectures below don't seem
-            # compatible with the training code in the rest of this file.
-            # Errors show up during the forward or backward pass.
-            # elif ('RESNET' in self.model_architecture or
-            #       'INCEPTION' in self.model_architecture):
-                # print(self.model.fc)
-                # self.input_size = self.model.fc.in_features
-                # self.model.classifier = self.model.fc
-            # elif 'SQUEEZENET' in self.model_architecture:
-            #     print(self.model.classifier)
-            #     self.input_size = self.model.classifier[1].in_channels
-
-            # print('Input size:', self.input_size)
 
             # Freeze the feature detector parameters to prevent backpropagating
             # through them.
             for param in self.model.parameters():
-                # print(param)
                 param.requires_grad = False
 
             self.model.current_epoch = 1
@@ -428,7 +400,6 @@ class Classifier(object):
                 # Do the forward and backward passes
                 outputs = self.model.forward(inputs)
                 loss = self.criterion(outputs, labels)
-                # loss.requires_grad = True  # needed for certain models???
                 loss.backward()
                 self.optimizer.step()
 

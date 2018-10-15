@@ -99,7 +99,6 @@ def main(*args):
                         help=('write training loss and accuracy data to a ' +
                               'log file at {save_dir}/{model_arch}.out'))
     args = parser.parse_args(args)
-    # print(args)
 
     keep_active = not args.no_active_session  # whether we need active_session
     validate = not args.no_validate  # whether to use validation set
@@ -116,7 +115,6 @@ def main(*args):
     except NotADirectoryError:
         print(f'ERROR: {data_dir} is not a directory.', file=sys.stderr)
         sys.exit(-1)
-    # print(num_categories)
 
     if args.gpu:
         device = 'cuda'
