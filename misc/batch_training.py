@@ -40,6 +40,13 @@ def load_hyperparameters(file_path):
         with open(file_path, 'r') as f:
             params = yaml.load(f)
     except FileNotFoundError:
+        print(f'Writing default hyperparameters to {file_path}.',
+              file=sys.stderr)
+
+        with open(file_path, 'w') as f:
+            f.write('# Example hyperparameters file for batch training\n')
+            yaml.dump(default_hyperparameters, f, default_flow_style=False)
+
         return default_hyperparameters
     except Exception as e:
         print('Exception while loading YAML file:', e, file=sys.stderr)
