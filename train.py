@@ -22,6 +22,8 @@ from contextlib import contextmanager
 import os
 import sys
 
+from requests import ConnectionError
+from urllib3.exceptions import NewConnectionError
 import torch
 
 from classifier.classifier import Classifier
@@ -154,20 +156,38 @@ def main(*args):
 
     with open(f'{save_dir}/{args.arch}.txt', 'w') \
             if args.write_log_file else dont_open() as log_file:
-        with active_session() if keep_active else no_context():
-            trainer.train_classifier(validate=validate,
-                                     num_epochs=args.epochs,
-                                     device=device,
-                                     output_file=log_file,
-                                     print_status=True)
+        try:
+            with active_session() if keep_active else no_context():
+                trainer.train_classifier(validate=validate,
+                                         num_epochs=args.epochs,
+                                         device=device,
+                                         output_file=log_file,
+                                         print_status=True)
+        except (NewConnectionError, ConnectionError) as e:
+            print('Exception raised in active_session context manager.',
+                  file=sys.stderr)
+            print('If running on a local machine, use',
+                  '--no_active_session flag.',
+                  file=sys.stderr)
+            print(e, file=sys.stderr)
+            sys.exit(-1)
 
     if save_checkpoint:
         trainer.classifier.save_checkpoint(save_dir + '/checkpoint.pth')
 
     if args.test_model:
-        with active_session() if keep_active else no_context():
-            accuracy = trainer.test_accuracy(device=device,
-                                             print_status=True)
+        try:
+            with active_session() if keep_active else no_context():
+                    accuracy = trainer.test_accuracy(device=device,
+                                                     print_status=True)
+        except (NewConnectionError, ConnectionError) as e:
+            print('Exception raised in active_session context manager.',
+                  file=sys.stderr)
+            print('If running on a local machine, use',
+                  '--no_active_session flag.',
+                  file=sys.stderr)
+            print(e, file=sys.stderr)
+            sys.exit(-1)
 
         msg = f'Test Accuracy: {accuracy*100:.4f}%'
         print(msg)
