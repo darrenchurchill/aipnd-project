@@ -9,6 +9,31 @@ import yaml
 
 from context import Classifier, train
 
+USAGE = '''Train each type of model architecture defined in classifier.py and
+output training, validation, and testing data to a set of files.
+
+Model hyperparameters can be specified in a file named
+hyperparameters.yml located in the SAVE_DIR_ROOT, if used, or the
+current directory if not used. The format of the file should follow the
+example below. If no file is given, the default values will be used and
+written to the hyperparameters.yml file as documentation.
+
+# hyperparameters.yml
+learn_rate: 0.001
+epochs: 6
+hidden_units:
+  - 4096
+  - 1000
+'''
+
+
+class ArgumentDefaultsAndRawDescriptionHelpFormatter(
+        argparse.ArgumentDefaultsHelpFormatter,
+        argparse.RawDescriptionHelpFormatter):
+    """Convenience class combining the features of the two argparse formatter
+    classes into a single formatter.
+    """
+    pass
 
 def load_hyperparameters(file_path):
     """Load a yaml file and return a dictionary.
@@ -71,12 +96,12 @@ def main(*args):
     Returns:
         None
     """
-    # Instantiating with formatter_class argument will make default values print
-    # in the help message.
+    # Use ArgumentDefaultsAndRawDescriptionHelpFormatter class to show default
+    # arg values and print the usage message string exactly as it was formatted
+    # above.
     parser = argparse.ArgumentParser(
-        description=('Train a new network on a dataset and save the model as ' +
-                     'a checkpoint'),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=USAGE,
+        formatter_class=ArgumentDefaultsAndRawDescriptionHelpFormatter
     )
     parser.add_argument('data_directory', type=str, nargs='?',
                         default='flowers',
