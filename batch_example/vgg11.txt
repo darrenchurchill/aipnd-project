@@ -1,0 +1,22 @@
+Epoch:  1/10    Training Loss: 4.536    Validation Loss: 3.125    Validation Accuracy: 0.321
+Epoch:  1/10    Training Loss: 3.013    Validation Loss: 1.773    Validation Accuracy: 0.533
+Epoch:  2/10    Training Loss: 2.171    Validation Loss: 1.100    Validation Accuracy: 0.715
+Epoch:  2/10    Training Loss: 1.996    Validation Loss: 0.950    Validation Accuracy: 0.743
+Epoch:  3/10    Training Loss: 1.654    Validation Loss: 0.735    Validation Accuracy: 0.799
+Epoch:  3/10    Training Loss: 1.623    Validation Loss: 0.735    Validation Accuracy: 0.808
+Epoch:  4/10    Training Loss: 1.499    Validation Loss: 0.682    Validation Accuracy: 0.817
+Epoch:  4/10    Training Loss: 1.519    Validation Loss: 0.647    Validation Accuracy: 0.835
+Epoch:  5/10    Training Loss: 1.508    Validation Loss: 0.591    Validation Accuracy: 0.844
+Epoch:  5/10    Training Loss: 1.394    Validation Loss: 0.527    Validation Accuracy: 0.869
+Epoch:  6/10    Training Loss: 1.384    Validation Loss: 0.508    Validation Accuracy: 0.863
+Epoch:  6/10    Training Loss: 1.395    Validation Loss: 0.487    Validation Accuracy: 0.880
+Epoch:  7/10    Training Loss: 1.330    Validation Loss: 0.490    Validation Accuracy: 0.872
+Epoch:  7/10    Training Loss: 1.301    Validation Loss: 0.465    Validation Accuracy: 0.885
+Epoch:  8/10    Training Loss: 1.264    Validation Loss: 0.534    Validation Accuracy: 0.875
+Epoch:  8/10    Training Loss: 1.327    Validation Loss: 0.463    Validation Accuracy: 0.882
+Epoch:  9/10    Training Loss: 1.321    Validation Loss: 0.490    Validation Accuracy: 0.883
+Epoch:  9/10    Training Loss: 1.275    Validation Loss: 0.476    Validation Accuracy: 0.879
+Epoch: 10/10    Training Loss: 1.235    Validation Loss: 0.519    Validation Accuracy: 0.861
+Epoch: 10/10    Training Loss: 1.301    Validation Loss: 0.496    Validation Accuracy: 0.871
+
+Test Accuracy: 84.8228%

@@ -1,0 +1,6 @@
+# Example hyperparameters file for batch training
+learn_rate: 0.001
+epochs: 10
+hidden_units:
+  - 4096
+  - 1000
