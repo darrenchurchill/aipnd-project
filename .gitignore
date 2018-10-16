@@ -113,3 +113,8 @@ flowers/valid
 
 # MacOS stuff
 **/.DS_Store
+
+# any zipped archives
+**/*.tar.gz
+**/*.zip
+
